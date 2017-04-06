@@ -1,6 +1,6 @@
 ARCH = $(shell uname)
 
-CC = g++ -Wall
+CC = g++ -Wall -fopenmp
 
 PROGRAMS = encode decode 
 
@@ -30,7 +30,7 @@ OBJS = $(ARITHM_OBJS) $(PNM_OBJS) $(MISC_OBJS) $(IMAGECODEC_OBJS)
 
 INCDIR = .
 
-CFLAGS = -O2 -I$(INCDIR) -D$(ARCH)
+CFLAGS = -O2 -I$(INCDIR) -D$(ARCH) -fopenmp
 
 .SUFFIXES: .cc .
 .cc.o:

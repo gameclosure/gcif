@@ -101,7 +101,6 @@ int PPMImage::write(char *filename) {
   }
 
   fprintf(fp, "P6\n%d %d\n%d\n", width, height, maxIntensity);
-
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       tmp = pixels[i*width + j] << 8;
@@ -184,6 +183,7 @@ PPMImage *PPMImage::copyArea(int x, int y, int w, int h) {
   register int i, j, imgsize;
 
   imgsize = w * h;
+  #pragma omp parallel for
   for (i = 0; i < imgsize; i++) 
     newimg->pixels[i] = 0;
 

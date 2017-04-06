@@ -32,8 +32,7 @@ CommandLine::~CommandLine() {
 //   Otherwise it returns False.
 //
 //////////////////////////////////////////////////////////////////////
-bool CommandLine::getOption(char *str) {
-    
+bool CommandLine::getOption(char *str) {  
   for (int i = 1; i < argc; i++)
     if (argv[i][0] == '-' && (strcmp(argv[i] + 1, str) == 0)) 
       return true;
@@ -90,7 +89,7 @@ bool CommandLine::getParameter(char *str, float *var) {
 bool CommandLine::getParameter(char *str, double *var) {
 
   for (int i = 1; i < argc - 1; i++)
-    if (argv[i][0] == '-' && (strcmp(argv[i] + 1, str) == 0)) {
+    if (argv[i][0] == '-' && (strcmp(argv[i] + 1, str) == 0)) { //false sharing if parallelized
       *var = (double) atof(argv[i+1]);
       return true;
     }
@@ -113,6 +112,7 @@ void CommandLine::setArguements(int _argc, char *_argv[]) {
     argc = _argc;
 
     argv = new char * [argc];
+    #pragma omp  parallel for
     for (int i = 0; i < argc; i++) {
        argv[i] = new char [MAX_STR_LEN];
        strcpy(argv[i], _argv[i]);

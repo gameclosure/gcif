@@ -57,9 +57,9 @@ int main(int argc, char *argv[]) {
 
   if (debugLevel > 1) {
     ShortImage * errImg = codec->getErrorImage();
-    int w = errImg->w;;
+    int w = errImg->w;
     int h = errImg->h;
-
+    
     FILE *ofp;
 
     char errorFilename[256];
@@ -71,9 +71,10 @@ int main(int argc, char *argv[]) {
     else {
       PGMImage *img = new PGMImage(w, h);
 
-      for (int y = 0; y < h; y++)
-        for (int x = 0; x < w; x++) {
-          fprintf(ofp, "%d %d   %d\n", x, y, errImg->getPixel(x, y));
+      #pragma omp parallel for
+      for (int y = 0; y < h; y++) 
+        for (int x = 0; x < w; x++) { //overhead in parallelizing
+          fprintf(ofp, "%d %d   %d\n", x, y, errImg->getPixel(x, y)); //thread safe
           img->setPixel(x, y, (errImg->getPixel(x, y) < 0) ? 0 : 255);
         }
 

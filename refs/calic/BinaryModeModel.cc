@@ -56,11 +56,15 @@ void ContinuousModeModel::init(int ns) {
   double *freqPercentage = new double[ns];
 
   double sum = 0.0;
+  double temp;
+  #pragma omp parallel for private(temp) reduction(+:sum)
   for (int i = 0; i < ns; i++) {
-    freqPercentage[i] = pow(15.0, 0.4 * (double)(-i-1));
-    sum += freqPercentage[i];
+    temp = pow(15.0, 0.4 * (double)(-i-1)); //prevent false sharing and double indirect addressing overhead 
+    freqPercentage[i] = temp;
+    sum += temp;
   }
 
+  #pragma omp parallel for shared(freqPercentage)
   for (int i = 0; i < ns; i++) {
     freqPercentage[i] /= sum;
   }
@@ -70,8 +74,9 @@ void ContinuousModeModel::init(int ns) {
     if (freq[i] == 0)
       freq[i] = 1;
   }
-
-  for (cum = 0, i = ns; i >= 0; i--) {
+  
+  cum = 0;
+  for ( i = ns; i >= 0; i--) {
     cum_freq[i] = cum;
     cum += freq[i];
   }
