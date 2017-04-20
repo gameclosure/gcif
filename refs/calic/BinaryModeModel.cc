@@ -4,41 +4,7 @@
 void BinaryModeModel::update(int index) {
 //  if (incr == 1)
     AdaptiveModel::update(index); 
-/*
-  else {
-    int i, cum, symb, new_freq;
 
-    if (cum_freq[0] >= MaxFrequency) {
-      for (cum = 0, i = numb_symb; i >= 0; i--) {
-        freq[i] = (freq[i] + 1) >> 1;
-        cum_freq[i] = cum;  
-        cum += freq[i]; 
-      }
-      incr = (incr + 1) / 2;
-    }
-  
-    new_freq = freq[index] + incr;
-    symb = index_to_symb[index];
-
-    int tmp_idx, tmp_symb;
-    for (i = index; new_freq >= freq[i-1] && i > 1; i--) {
-      freq[i] = freq[i-1];
-      tmp_symb = index_to_symb[i-1];
-      index_to_symb[i] = tmp_symb;
-      symb_to_index[tmp_symb] = i;
-    }
-
-    freq[i] = new_freq;
-
-    if (i < index) {
-      index_to_symb[i] = symb;
-      symb_to_index[symb] = i;
-    }
-
-    while (i) 
-      cum_freq[--i] += incr;
-  }
-*/
 }
 
 void BinaryModeModel::init(int ns) {
@@ -52,33 +18,50 @@ void ContinuousModeModel::init(int ns) {
 
   int i, cum;
 
-  int freqCount = (MaxFrequency * 2 / 4);
+  int freqCount = (MaxFrequency / 2);
   double *freqPercentage = new double[ns];
 
   double sum = 0.0;
   double temp;
   #pragma omp parallel for private(temp) reduction(+:sum)
-  for (int i = 0; i < ns; i++) {
-    temp = pow(15.0, 0.4 * (double)(-i-1)); //prevent false sharing and double indirect addressing overhead 
-    freqPercentage[i] = temp;
-    sum += temp;
+  for (int i = 0; i < ns; i++) 
+  {
+    //prevent false sharing and double indirect addressing overhead using a `temp`orary variable
+    temp = pow(15.0, 0.4 * (double)(-i-1));  
+    freqPercentage[i] = temp;  
+    sum += temp; 
+    //temp avoids data dependency issues instead of freqPercentage
   }
 
   #pragma omp parallel for shared(freqPercentage)
-  for (int i = 0; i < ns; i++) {
-    freqPercentage[i] /= sum;
+  for (int i = 0; i < ns; i++) 
+  {
+    //Get and store probabiliity
+      freqPercentage[i] /= sum;
   }
 
-  for (i = 1; i <= ns; i++) {
+  for (i = 1; i <= ns; i++) 
+  {
+    
+     //Absolute frequency
     freq[i] = (int)((double)freqCount * freqPercentage[i-1]);
     if (freq[i] == 0)
       freq[i] = 1;
   }
   
-  cum = 0;
-  for ( i = ns; i >= 0; i--) {
-    cum_freq[i] = cum;
-    cum += freq[i];
+  //Cumulative Frequency => loop dependencies => prefix sum
+cum_freq[ns] = 0;
+ int j;
+  #pragma omp parallel for schedule(dynamic)
+  for ( i = ns - 1; i >= 0; i--) 
+  {   
+    cum_freq[i] = 0;
+    //#pragma omp parallel for reduction is an overhead
+    for(j=ns;j>=i;j--)
+    {
+        cum_freq[i] += freq[j];
+    }
+    
   }
 
   delete [] freqPercentage;
