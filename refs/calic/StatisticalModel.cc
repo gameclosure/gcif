@@ -2,7 +2,10 @@
 
 void StatisticalModel::reset() {
   for (int i = 0; i < size; i++)
-    model[i] = modelCount[i] = 0;
+   {
+    model[i]  = 0;
+    modelCount[i] = 0;
+   } 
 }
 
 int StatisticalModel::write(char *filename) {

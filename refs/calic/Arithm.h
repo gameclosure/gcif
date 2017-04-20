@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <omp.h>
 #define MaxSymbols 257
 
 #define CodeValueBits   16

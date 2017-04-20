@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <omp.h>
 
 #ifndef MAX_STR_LEN
 #define MAX_STR_LEN 64

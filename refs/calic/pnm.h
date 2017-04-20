@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <omp.h>
 typedef unsigned char byte;
 typedef unsigned short int16;
 

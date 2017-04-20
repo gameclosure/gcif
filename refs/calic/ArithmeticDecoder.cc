@@ -56,15 +56,21 @@ void ArithmeticDecoder::Input_Byte() {
 }
 
 void ArithmeticDecoder::update() {
-  for (;;) {
-    if (high >= Half) {
-      if (low >= Half) {
+
+  for (;;) 
+  {
+    if (high >= Half) 
+    {
+      if (low >= Half) 
+      {
         value -= Half;  
         low -= Half;  
         high -= Half; 
       }
-      else {
-        if ((low >= FirstQtr) && (high < ThirdQtr)) {
+      else 
+      {
+        if ((low >= FirstQtr) && (high < ThirdQtr)) 
+        {
           value -= FirstQtr;  low -= FirstQtr;
           high -= FirstQtr; 
         }

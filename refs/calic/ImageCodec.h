@@ -5,6 +5,7 @@
 #define __IMAGECODEC_H__
 
 #include <pnm.h>
+#include <string.h>
 #include "Arithm.h"
 #include "Image.h"
 
